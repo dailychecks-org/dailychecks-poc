@@ -17,42 +17,59 @@
 
 // Signs-in Friendly Chat.
 function signIn() {
-  // TODO 1: Sign in Firebase with credential from the Google user.
+  // Sign in Firebase using popup auth and Google as the identity provider.
+  var provider = new firebase.auth.GoogleAuthProvider();
+  var provider = new firebase.auth.TwitterAuthProvider();
+  firebase.auth().signInWithPopup(provider);
 }
 
 // Signs-out of Friendly Chat.
 function signOut() {
-  // TODO 2: Sign out of Firebase.
+  firebase.auth().signOut();
 }
 
 // Initiate firebase auth.
 function initFirebaseAuth() {
-  // TODO 3: Initialize Firebase.
+  firebase.auth().onAuthStateChanged(authStateObserver);
 }
 
 // Returns the signed-in user's profile Pic URL.
 function getProfilePicUrl() {
-  // TODO 4: Return the user's profile pic URL.
+  return firebase.auth().currentUser.photoURL || '/images/profile_placeholder.png';
 }
 
 // Returns the signed-in user's display name.
 function getUserName() {
-  // TODO 5: Return the user's display name.
+  return firebase.auth().currentUser.displayName;
 }
 
 // Returns true if a user is signed-in.
 function isUserSignedIn() {
-  // TODO 6: Return true if a user is signed-in.
+  return !!firebase.auth().currentUser;
 }
 
 // Loads chat messages history and listens for upcoming ones.
 function loadMessages() {
-  // TODO 7: Load and listens for new messages.
+  // Loads the last 12 messages and listen for new ones.
+  var callback = function(snap) {
+    var data = snap.val();
+    displayMessage(snap.key, data.name, data.text, data.profilePicUrl, data.imageUrl);
+  };
+
+  firebase.database().ref('/messages/').limitToLast(12).on('child_added', callback);
+  firebase.database().ref('/messages/').limitToLast(12).on('child_changed', callback);
 }
 
 // Saves a new message on the Firebase DB.
 function saveMessage(messageText) {
-  // TODO 8: Push a new message to Firebase.
+  // Add a new message entry to the Firebase Database.
+  return firebase.database().ref('/messages/').push({
+    name: getUserName(),
+    text: messageText,
+    profilePicUrl: getProfilePicUrl()
+  }).catch(function(error) {
+    console.error('Error writing new message to Firebase Database', error);
+  });
 }
 
 // Saves a new message containing an image in Firebase.
@@ -63,12 +80,30 @@ function saveImageMessage(file) {
 
 // Saves the messaging device token to the datastore.
 function saveMessagingDeviceToken() {
-  // TODO 10: Save the device token in the realtime datastore
+  firebase.messaging().getToken().then(function(currentToken) {
+    if (currentToken) {
+      console.log('Got FCM device token:', currentToken);
+      // Saving the Device Token to the datastore.
+      firebase.database().ref('/fcmTokens').child(currentToken)
+          .set(firebase.auth().currentUser.uid);
+    } else {
+      // Need to request permissions to show notifications.
+      requestNotificationsPermissions();
+    }
+  }).catch(function(error){
+    console.error('Unable to get messaging token.', error);
+  });
 }
 
 // Requests permissions to show notifications.
 function requestNotificationsPermissions() {
-  // TODO 11: Request permissions to send notifications.
+  console.log('Requesting notifications permission...');
+  firebase.messaging().requestPermission().then(function() {
+    // Notification permission granted.
+    saveMessagingDeviceToken();
+  }).catch(function(error) {
+    console.error('Unable to get permission to notify.', error);
+  });
 }
 
 // Triggered when a file is selected via the media picker.
