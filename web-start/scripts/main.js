@@ -15,15 +15,20 @@
  */
 'use strict';
 
-// Signs-in Friendly Chat.
-function signIn() {
-  // Sign in Firebase using popup auth and Google as the identity provider.
+function signInWithGoogle() {
   var provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider);
+}
+
+function signInWithTwitter() {
   var provider = new firebase.auth.TwitterAuthProvider();
   firebase.auth().signInWithPopup(provider);
 }
 
-// Signs-out of Friendly Chat.
+function getProviderName() {
+  return firebase.auth().currentUser.providerData[0].providerId;
+}
+
 function signOut() {
   firebase.auth().signOut();
 }
@@ -125,20 +130,24 @@ function onMessageFormSubmit(e) {
 function authStateObserver(user) {
   if (user) { // User is signed in!
     // Get the signed-in user's profile pic and name.
-    var profilePicUrl = getProfilePicUrl();
     var userName = getUserName();
+    var profilePicUrl = getProfilePicUrl();
+    var providerName = getProviderName();
 
     // Set the user's profile pic and name.
-    userPicElement.style.backgroundImage = 'url(' + profilePicUrl + ')';
     userNameElement.textContent = userName;
+    userPicElement.style.backgroundImage = 'url(' + profilePicUrl + ')';
+    providerNameElement.textContent = providerName;
 
     // Show user's profile and sign-out button.
     userNameElement.removeAttribute('hidden');
     userPicElement.removeAttribute('hidden');
+    providerNameElement.removeAttribute('hidden');
     signOutButtonElement.removeAttribute('hidden');
 
     // Hide sign-in button.
-    signInButtonElement.setAttribute('hidden', 'true');
+    signInWithGoogleButtonElement.setAttribute('hidden', 'true');
+    signInWithTwitterButtonElement.setAttribute('hidden', 'true');
 
     loadHabits();
     loadHabitLogs();
@@ -146,10 +155,12 @@ function authStateObserver(user) {
     // Hide user's profile and sign-out button.
     userNameElement.setAttribute('hidden', 'true');
     userPicElement.setAttribute('hidden', 'true');
+    providerNameElement.setAttribute('hidden', 'true');
     signOutButtonElement.setAttribute('hidden', 'true');
 
     // Show sign-in button.
-    signInButtonElement.removeAttribute('hidden');
+    signInWithGoogleButtonElement.removeAttribute('hidden');
+    signInWithTwitterButtonElement.removeAttribute('hidden');
   }
 }
 
@@ -260,14 +271,17 @@ var messageInputElement = document.getElementById('message');
 var submitButtonElement = document.getElementById('submit');
 var userPicElement = document.getElementById('user-pic');
 var userNameElement = document.getElementById('user-name');
-var signInButtonElement = document.getElementById('sign-in');
+var providerNameElement = document.getElementById('provider-name');
+var signInWithGoogleButtonElement = document.getElementById('sign-in-with-google');
+var signInWithTwitterButtonElement = document.getElementById('sign-in-with-twitter');
 var signOutButtonElement = document.getElementById('sign-out');
 var signInSnackbarElement = document.getElementById('must-signin-snackbar');
 
 // Saves message on form submit.
 messageFormElement.addEventListener('submit', onMessageFormSubmit);
 signOutButtonElement.addEventListener('click', signOut);
-signInButtonElement.addEventListener('click', signIn);
+signInWithGoogleButtonElement.addEventListener('click', signInWithGoogle);
+signInWithTwitterButtonElement.addEventListener('click', signInWithTwitter);
 
 // Toggle for the button.
 messageInputElement.addEventListener('keyup', toggleButton);
