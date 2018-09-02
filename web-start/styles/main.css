@@ -58,9 +58,6 @@ main, #messages-card {
   display: flex;
   flex-direction: column;
 }
-#message-filler {
-  flex-grow: 1;
-}
 .message-container:first-of-type {
   border-top-width: 0;
 }
@@ -107,16 +104,10 @@ main, #messages-card {
   width: calc(100% - 48px);
   float: left;
 }
-#image-form {
-  display: flex;
-  flex-direction: row;
-  width: 48px;
-  float: right;
-}
 #message-form .mdl-textfield {
   width: calc(100% - 100px);
 }
-#message-form button, #image-form button {
+#message-form button {
   width: 100px;
   margin: 15px 0 0 10px;
 }
@@ -155,20 +146,9 @@ main, #messages-card {
   padding-right: 10px;
   padding-left: 20px;
 }
-#image-form #submitImage {
-  width: auto;
-  padding: 0 6px 0 1px;
-  min-width: 0;
-}
-#image-form #submitImage .material-icons {
-  top: -1px;
-}
 .message img {
   max-width: 300px;
   max-height: 200px;
-}
-#mediaCapture {
-  display: none;
 }
 @media screen and (max-width: 610px) {
   header {
