@@ -51,17 +51,17 @@ main, #messages-card {
   padding-top: 0;
   padding-bottom: 0;
 }
-#messages {
+#habits {
   overflow-y: auto;
   margin-bottom: 10px;
   height: calc(100% - 80px);
   display: flex;
   flex-direction: column;
 }
-.message-container:first-of-type {
+.habit-container:first-of-type {
   border-top-width: 0;
 }
-.message-container {
+.habit-container {
   display: block;
   margin-top: 10px;
   border-top: 1px solid #f3f3f3;
@@ -69,10 +69,10 @@ main, #messages-card {
   opacity: 0;
   transition: opacity 1s ease-in-out;
 }
-.message-container.visible {
+.habit-container.visible {
   opacity: 1;
 }
-.message-container .pic {
+.habit-container .pic {
   background-image: url('/images/profile_placeholder.png');
   background-repeat: no-repeat;
   width: 30px;
@@ -80,23 +80,18 @@ main, #messages-card {
   background-size: 30px;
   border-radius: 20px;
 }
-.message-container .spacing {
+.habit-container .spacing {
   display: table-cell;
   vertical-align: top;
 }
-.message-container .message {
+.habit-container .name {
   display: table-cell;
-  width: calc(100% - 40px);
-  padding: 5px 0 5px 10px;
 }
-.message-container .name {
-  display: inline-block;
-  width: 100%;
-  padding-left: 40px;
-  color: #bbb;
-  font-style: italic;
-  font-size: 12px;
-  box-sizing: border-box;
+.habit-container .positive {
+  display: table-cell;
+}
+.habit-container .frequency {
+  display: table-cell;
 }
 #message-form {
   display: flex;

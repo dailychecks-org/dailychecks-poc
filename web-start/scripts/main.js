@@ -53,16 +53,16 @@ function isUserSignedIn() {
   return !!firebase.auth().currentUser;
 }
 
-// Loads chat messages history and listens for upcoming ones.
-function loadMessages() {
-  // Loads the last 12 messages and listen for new ones.
+// Loads habits and listens for upcoming ones.
+function loadHabits() {
   var callback = function(snap) {
     var data = snap.val();
-    displayMessage(snap.key, data.name, data.text, data.profilePicUrl, data.imageUrl);
+    displayHabit(snap.key, data.name, data.type === 'positive', data.frequency);
   };
 
-  firebase.database().ref('/messages/').limitToLast(12).on('child_added', callback);
-  firebase.database().ref('/messages/').limitToLast(12).on('child_changed', callback);
+  const uid = getUid();
+  firebase.database().ref(`/users/${uid}/habits/`).on('child_added', callback);
+  firebase.database().ref(`/users/${uid}/habits/`).on('child_changed', callback);
 }
 
 // Saves a new message on the Firebase DB.
@@ -158,6 +158,8 @@ function authStateObserver(user) {
 
     // We save the Firebase Messaging Device token and enable notifications.
     saveMessagingDeviceToken();
+
+    loadHabits();
   } else { // User is signed out!
     // Hide user's profile and sign-out button.
     userNameElement.setAttribute('hidden', 'true');
@@ -192,48 +194,33 @@ function resetMaterialTextfield(element) {
 }
 
 // Template for messages.
-var MESSAGE_TEMPLATE =
-    '<div class="message-container">' +
-      '<div class="spacing"><div class="pic"></div></div>' +
-      '<div class="message"></div>' +
+var HABIT_TEMPLATE =
+    '<div class="habit-container">' +
       '<div class="name"></div>' +
+      '<div class="positive"></div>' +
+      '<div class="frequency"></div>' +
     '</div>';
 
 // A loading image URL.
 var LOADING_IMAGE_URL = 'https://www.google.com/images/spin-32.gif?a';
 
-// Displays a Message in the UI.
-function displayMessage(key, name, text, picUrl, imageUrl) {
+// Displays a Habit in the UI.
+function displayHabit(key, name, positive, frequency) {
   var div = document.getElementById(key);
   // If an element for that message does not exists yet we create it.
   if (!div) {
     var container = document.createElement('div');
-    container.innerHTML = MESSAGE_TEMPLATE;
+    container.innerHTML = HABIT_TEMPLATE;
     div = container.firstChild;
     div.setAttribute('id', key);
-    messageListElement.appendChild(div);
-  }
-  if (picUrl) {
-    div.querySelector('.pic').style.backgroundImage = 'url(' + picUrl + ')';
+    habitListElement.appendChild(div);
   }
   div.querySelector('.name').textContent = name;
-  var messageElement = div.querySelector('.message');
-  if (text) { // If the message is text.
-    messageElement.textContent = text;
-    // Replace all line breaks by <br>.
-    messageElement.innerHTML = messageElement.innerHTML.replace(/\n/g, '<br>');
-  } else if (imageUrl) { // If the message is an image.
-    var image = document.createElement('img');
-    image.addEventListener('load', function() {
-      messageListElement.scrollTop = messageListElement.scrollHeight;
-    });
-    image.src = imageUrl + '&' + new Date().getTime();
-    messageElement.innerHTML = '';
-    messageElement.appendChild(image);
-  }
-  // Show the card fading-in and scroll to view the new message.
+  div.querySelector('.positive').textContent = positive ? 'good' : 'bad';
+  div.querySelector('.frequency').textContent = frequency;
+  // Show the card fading-in and scroll to view the new habit.
   setTimeout(function() {div.classList.add('visible')}, 1);
-  messageListElement.scrollTop = messageListElement.scrollHeight;
+  habitListElement.scrollTop = habitListElement.scrollHeight;
   messageInputElement.focus();
 }
 
@@ -260,7 +247,7 @@ function checkSetup() {
 checkSetup();
 
 // Shortcuts to DOM Elements.
-var messageListElement = document.getElementById('messages');
+var habitListElement = document.getElementById('habits');
 var messageFormElement = document.getElementById('message-form');
 var messageInputElement = document.getElementById('message');
 var submitButtonElement = document.getElementById('submit');
@@ -281,6 +268,3 @@ messageInputElement.addEventListener('change', toggleButton);
 
 // initialize Firebase
 initFirebaseAuth();
-
-// We load currently existing chat messages and listen to new ones.
-loadMessages();
