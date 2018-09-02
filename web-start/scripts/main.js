@@ -43,6 +43,11 @@ function getUserName() {
   return firebase.auth().currentUser.displayName;
 }
 
+// Returns the signed-in user's user id
+function getUid() {
+  return firebase.auth().currentUser.uid;
+}
+
 // Returns true if a user is signed-in.
 function isUserSignedIn() {
   return !!firebase.auth().currentUser;
@@ -62,14 +67,33 @@ function loadMessages() {
 
 // Saves a new message on the Firebase DB.
 function saveMessage(messageText) {
-  // Add a new message entry to the Firebase Database.
-  return firebase.database().ref('/messages/').push({
-    name: getUserName(),
-    text: messageText,
-    profilePicUrl: getProfilePicUrl()
-  }).catch(function(error) {
-    console.error('Error writing new message to Firebase Database', error);
-  });
+  const uid = getUid();
+
+  // habit:name:type:days
+  // log:name
+  var parts = messageText.split(':');
+  const cmd = parts[0];
+  if (cmd === 'habit' && parts.length == 4) {
+    const name = parts[1];
+    const type = parts[2];
+    const days = parseInt(parts[3], 10);
+    return firebase.database().ref(`/users/${uid}/habits/`).push({
+      name: name,
+      type: type,
+      frequency: days
+    }).catch(function(error) {
+      console.error('Error writing new Habit to Firebase Database', error);
+    });
+  } else if (cmd == 'log' && parts.length == 2) {
+    // TODO use specified habitId instead of hardcoded dummy
+    const habitId = '-LLM-P6dS1NjmQ5FVpSp';
+    return firebase.database().ref(`/users/${uid}/habitLogs/`).push({
+      habitId: habitId,
+      createdAt: Date.now()
+    }).catch(function(error) {
+      console.error('Error writing new HabitLog to Firebase Database', error);
+    });
+  }
 }
 
 // Saves a new message containing an image in Firebase.
