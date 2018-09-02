@@ -65,6 +65,18 @@ function loadHabits() {
   firebase.database().ref(`/users/${uid}/habits/`).on('child_changed', callback);
 }
 
+// Loads habit logs and listens for upcoming ones.
+function loadHabitLogs() {
+  var callback = function(snap) {
+    var data = snap.val();
+    displayHabitLog(snap.key, data.habitId, data.createdAt);
+  };
+
+  const uid = getUid();
+  firebase.database().ref(`/users/${uid}/habitLogs/`).on('child_added', callback);
+  firebase.database().ref(`/users/${uid}/habitLogs/`).on('child_changed', callback);
+}
+
 // Saves a new message on the Firebase DB.
 function saveMessage(messageText) {
   const uid = getUid();
@@ -129,6 +141,7 @@ function authStateObserver(user) {
     signInButtonElement.setAttribute('hidden', 'true');
 
     loadHabits();
+    loadHabitLogs();
   } else { // User is signed out!
     // Hide user's profile and sign-out button.
     userNameElement.setAttribute('hidden', 'true');
@@ -162,12 +175,17 @@ function resetMaterialTextfield(element) {
   element.parentNode.MaterialTextfield.boundUpdateClassesHandler();
 }
 
-// Template for messages.
 var HABIT_TEMPLATE =
     '<div class="habit-container">' +
       '<div class="name"></div>' +
       '<div class="positive"></div>' +
       '<div class="frequency"></div>' +
+    '</div>';
+
+var HABIT_LOG_TEMPLATE =
+    '<div class="habitlog-container">' +
+      '<div class="habitId"></div>' +
+      '<div class="createdAt"></div>' +
     '</div>';
 
 // A loading image URL.
@@ -190,6 +208,25 @@ function displayHabit(key, name, positive, frequency) {
   // Show the card fading-in and scroll to view the new habit.
   setTimeout(function() {div.classList.add('visible')}, 1);
   habitListElement.scrollTop = habitListElement.scrollHeight;
+  messageInputElement.focus();
+}
+
+// Displays a HabitLog in the UI.
+function displayHabitLog(key, habitId, createdAt) {
+  var div = document.getElementById(key);
+  // If an element for that message does not exists yet we create it.
+  if (!div) {
+    var container = document.createElement('div');
+    container.innerHTML = HABIT_LOG_TEMPLATE;
+    div = container.firstChild;
+    div.setAttribute('id', key);
+    habitLogListElement.appendChild(div);
+  }
+  div.querySelector('.habitId').textContent = habitId;
+  div.querySelector('.createdAt').textContent = createdAt;
+  // Show the card fading-in and scroll to view the new habit.
+  setTimeout(function() {div.classList.add('visible')}, 1);
+  habitLogListElement.scrollTop = habitLogListElement.scrollHeight;
   messageInputElement.focus();
 }
 
@@ -217,6 +254,7 @@ checkSetup();
 
 // Shortcuts to DOM Elements.
 var habitListElement = document.getElementById('habits');
+var habitLogListElement = document.getElementById('habitLogs');
 var messageFormElement = document.getElementById('message-form');
 var messageInputElement = document.getElementById('message');
 var submitButtonElement = document.getElementById('submit');
