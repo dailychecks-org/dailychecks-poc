@@ -66,8 +66,13 @@ function loadHabits() {
   };
 
   const uid = getUid();
-  firebase.database().ref(`/users/${uid}/habits/`).on('child_added', callback);
-  firebase.database().ref(`/users/${uid}/habits/`).on('child_changed', callback);
+  // https://firebase.google.com/docs/database/web/lists-of-data#filtering_data
+  const query = firebase.database()
+    .ref(`/users/${uid}/habits/`)
+    .orderByChild('type')
+    .equalTo('positive');
+  query.on('child_added', callback);
+  query.on('child_changed', callback);
 }
 
 // Saves a new message on the Firebase DB.
