@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
- html, body {
+html, body {
   font-family: 'Roboto', 'Helvetica', sans-serif;
+}
+.template {
+  display: none;
 }
 main, #messages-card {
   height: 100%;
@@ -57,33 +60,6 @@ main, #messages-card {
   height: calc(100% - 80px);
   display: flex;
   flex-direction: column;
-}
-.habit-container:first-of-type {
-  border-top-width: 0;
-}
-.habit-container {
-  display: block;
-  margin-top: 10px;
-  border-top: 1px solid #f3f3f3;
-  padding-top: 10px;
-  opacity: 0;
-  transition: opacity 1s ease-in-out;
-}
-.habit-container.visible {
-  opacity: 1;
-}
-.habit-container .spacing {
-  display: table-cell;
-  vertical-align: top;
-}
-.habit-container .name {
-  display: table-cell;
-}
-.habit-container .positive {
-  display: table-cell;
-}
-.habit-container .frequency {
-  display: table-cell;
 }
 
 #message-form {

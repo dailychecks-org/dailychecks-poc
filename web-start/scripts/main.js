@@ -169,12 +169,14 @@ function resetMaterialTextfield(element) {
   element.parentNode.MaterialTextfield.boundUpdateClassesHandler();
 }
 
-var HABIT_TEMPLATE =
-    '<div class="habit-container">' +
-      '<div class="name"></div>' +
-      '<div class="positive"></div>' +
-      '<div class="frequency"></div>' +
-    '</div>';
+var HABIT_TEMPLATE = `
+<li class="mdl-list__item mdl-list__item--two-line">
+<span class="mdl-list__item-primary-content">
+  <span class="name">Push-ups</span>
+  <span class="mdl-list__item-sub-title frequency">Every 3 days</span>
+</span>
+</li>
+`
 
 // A loading image URL.
 var LOADING_IMAGE_URL = 'https://www.google.com/images/spin-32.gif?a';
@@ -186,17 +188,28 @@ function displayHabit(key, name, positive, frequency) {
   if (!div) {
     var container = document.createElement('div');
     container.innerHTML = HABIT_TEMPLATE;
-    div = container.firstChild;
+    div = container.firstElementChild;
     div.setAttribute('id', key);
     habitListElement.appendChild(div);
   }
-  div.querySelector('.name').textContent = name;
-  div.querySelector('.positive').textContent = positive ? 'good' : 'bad';
-  div.querySelector('.frequency').textContent = frequency;
+  div.querySelector('.name').textContent = formatName(name);
+  div.querySelector('.frequency').textContent = formatFrequency(frequency);
   // Show the card fading-in and scroll to view the new habit.
   setTimeout(function() {div.classList.add('visible')}, 1);
   habitListElement.scrollTop = habitListElement.scrollHeight;
   messageInputElement.focus();
+}
+
+function formatName(name) {
+  return capitalizeFirstLetter(name);
+}
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function formatFrequency(frequency) {
+  return `Every ${frequency} days`;
 }
 
 // Enables or disables the submit button depending on the values of the input
