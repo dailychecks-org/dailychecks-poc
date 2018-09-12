@@ -86,38 +86,6 @@ main, #messages-card {
   display: table-cell;
 }
 
-#habitLogs {
-  overflow-y: auto;
-  margin-bottom: 10px;
-  height: calc(100% - 80px);
-  display: flex;
-  flex-direction: column;
-}
-.habitlog-container:first-of-type {
-  border-top-width: 0;
-}
-.habitlog-container {
-  display: block;
-  margin-top: 10px;
-  border-top: 1px solid #f3f3f3;
-  padding-top: 10px;
-  opacity: 0;
-  transition: opacity 1s ease-in-out;
-}
-.habitlog-container.visible {
-  opacity: 1;
-}
-.habitlog-container .spacing {
-  display: table-cell;
-  vertical-align: top;
-}
-.habitlog-container .habitId {
-  display: table-cell;
-}
-.habitlog-container .createdAt {
-  display: table-cell;
-}
-
 #message-form {
   display: flex;
   flex-direction: row;
