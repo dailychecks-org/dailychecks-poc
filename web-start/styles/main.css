@@ -62,16 +62,15 @@ main, #messages-card {
   flex-direction: column;
 }
 
-#message-form {
+#new-habit-form {
   display: flex;
   flex-direction: row;
-  width: calc(100% - 48px);
   float: left;
 }
-#message-form .mdl-textfield {
-  width: calc(100% - 100px);
+#new-habit-form .mdl-textfield.days {
+  width: 35px;
 }
-#message-form button {
+#new-habit-form button {
   width: 100px;
   margin: 15px 0 0 10px;
 }

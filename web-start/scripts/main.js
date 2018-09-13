@@ -75,36 +75,29 @@ function loadHabits() {
   query.on('child_changed', callback);
 }
 
-// Saves a new message on the Firebase DB.
-function saveMessage(messageText) {
+// Saves a new habit on the Firebase DB.
+function createHabit(name, days) {
   const uid = getUid();
-
-  // habit:name:type:days
-  // log:name
-  var parts = messageText.split(':');
-  const cmd = parts[0];
-  if (cmd === 'habit' && parts.length == 4) {
-    const name = parts[1];
-    const type = parts[2];
-    const days = parseInt(parts[3], 10);
-    return firebase.database().ref(`/users/${uid}/habits/`).push({
-      name: name,
-      type: type,
-      frequency: days
-    }).catch(function(error) {
-      console.error('Error writing new Habit to Firebase Database', error);
-    });
-  }
+  const type = 'positive';
+  days = parseInt(days, 10);
+  return firebase.database().ref(`/users/${uid}/habits/`).push({
+    name: name,
+    type: type,
+    frequency: days
+  }).catch(function(error) {
+    console.error('Error writing new Habit to Firebase Database', error);
+  });
 }
 
-// Triggered when the send new message form is submitted.
-function onMessageFormSubmit(e) {
+// Triggered when the new habit form is submitted.
+function onNewHabitFormSubmit(e) {
   e.preventDefault();
-  // Check that the user entered a message and is signed in.
-  if (messageInputElement.value && checkSignedInWithMessage()) {
-    saveMessage(messageInputElement.value).then(function() {
-      // Clear message text field and re-enable the SEND button.
-      resetMaterialTextfield(messageInputElement);
+  // Check that the user entered a habit and is signed in.
+  if (habitInputElement.value && daysInputElement.value && checkSignedInWithMessage()) {
+    createHabit(habitInputElement.value, daysInputElement.value).then(function() {
+      // Clear habit input fields and re-disable the SEND button.
+      resetMaterialTextfield(habitInputElement);
+      resetMaterialTextfield(daysInputElement);
       toggleButton();
     });
   }
@@ -184,7 +177,7 @@ var LOADING_IMAGE_URL = 'https://www.google.com/images/spin-32.gif?a';
 // Displays a Habit in the UI.
 function displayHabit(key, name, positive, frequency) {
   var div = document.getElementById(key);
-  // If an element for that message does not exists yet we create it.
+  // If an element for that habit does not exists yet we create it.
   if (!div) {
     var container = document.createElement('div');
     container.innerHTML = HABIT_TEMPLATE;
@@ -197,7 +190,7 @@ function displayHabit(key, name, positive, frequency) {
   // Show the card fading-in and scroll to view the new habit.
   setTimeout(function() {div.classList.add('visible')}, 1);
   habitListElement.scrollTop = habitListElement.scrollHeight;
-  messageInputElement.focus();
+  habitInputElement.focus();
 }
 
 function formatName(name) {
@@ -215,7 +208,7 @@ function formatFrequency(frequency) {
 // Enables or disables the submit button depending on the values of the input
 // fields.
 function toggleButton() {
-  if (messageInputElement.value) {
+  if (habitInputElement.value && daysInputElement.value) {
     submitButtonElement.removeAttribute('disabled');
   } else {
     submitButtonElement.setAttribute('disabled', 'true');
@@ -236,8 +229,9 @@ checkSetup();
 
 // Shortcuts to DOM Elements.
 var habitListElement = document.getElementById('habits');
-var messageFormElement = document.getElementById('message-form');
-var messageInputElement = document.getElementById('message');
+var habitFormElement = document.getElementById('new-habit-form');
+var habitInputElement = document.getElementById('new-habit');
+var daysInputElement = document.getElementById('new-days');
 var submitButtonElement = document.getElementById('submit');
 var userPicElement = document.getElementById('user-pic');
 var userNameElement = document.getElementById('user-name');
@@ -247,15 +241,17 @@ var signInWithTwitterButtonElement = document.getElementById('sign-in-with-twitt
 var signOutButtonElement = document.getElementById('sign-out');
 var signInSnackbarElement = document.getElementById('must-signin-snackbar');
 
-// Saves message on form submit.
-messageFormElement.addEventListener('submit', onMessageFormSubmit);
+// Saves habit on form submit.
+habitFormElement.addEventListener('submit', onNewHabitFormSubmit);
 signOutButtonElement.addEventListener('click', signOut);
 signInWithGoogleButtonElement.addEventListener('click', signInWithGoogle);
 signInWithTwitterButtonElement.addEventListener('click', signInWithTwitter);
 
 // Toggle for the button.
-messageInputElement.addEventListener('keyup', toggleButton);
-messageInputElement.addEventListener('change', toggleButton);
+habitInputElement.addEventListener('keyup', toggleButton);
+habitInputElement.addEventListener('change', toggleButton);
+daysInputElement.addEventListener('keyup', toggleButton);
+daysInputElement.addEventListener('change', toggleButton);
 
 // initialize Firebase
 initFirebaseAuth();

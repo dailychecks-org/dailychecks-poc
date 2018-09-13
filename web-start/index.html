@@ -94,13 +94,18 @@
                     </span>
                   </li>
                 </ul>
-                <form id="message-form" action="#">
-                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                    <input class="mdl-textfield__input" type="text" id="message">
-                    <label class="mdl-textfield__label" for="message">Message...</label>
+                <form id="new-habit-form" action="#">
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label habit">
+                    <input class="mdl-textfield__input" type="text" id="new-habit">
+                    <label class="mdl-textfield__label" for="new-habit">A habit you would like to have...</label>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label days">
+                    <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="new-days">
+                    <label class="mdl-textfield__label" for="new-days">Days...</label>
+                    <span class="mdl-textfield__error">Input is not a number!</span>
                   </div>
                   <button id="submit" disabled type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
-                    Send
+                    Add
                   </button>
                 </form>
               </div>
