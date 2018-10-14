@@ -62,7 +62,7 @@ function isUserSignedIn() {
 function loadHabits() {
   var callback = function(snap) {
     var data = snap.val();
-    displayHabit(snap.key, data.name, data.type === 'positive', data.frequency);
+    displayHabit(snap.key, data);
   };
 
   const uid = getUid();
@@ -83,7 +83,7 @@ function createHabit(name, days) {
   return firebase.database().ref(`/users/${uid}/habits/`).push({
     name: name,
     type: type,
-    frequency: days,
+    days: days,
     createdAt: Date.now()
   }).catch(function(error) {
     console.error('Error writing new Habit to Firebase Database', error);
@@ -176,7 +176,7 @@ var HABIT_TEMPLATE = `
 var LOADING_IMAGE_URL = 'https://www.google.com/images/spin-32.gif?a';
 
 // Displays a Habit in the UI.
-function displayHabit(key, name, positive, frequency) {
+function displayHabit(key, data) {
   var div = document.getElementById(key);
   // If an element for that habit does not exists yet we create it.
   if (!div) {
@@ -184,14 +184,51 @@ function displayHabit(key, name, positive, frequency) {
     container.innerHTML = HABIT_TEMPLATE;
     div = container.firstElementChild;
     div.setAttribute('id', key);
-    habitListElement.appendChild(div);
+    insertHabit(div, data);
   }
-  div.querySelector('.name').textContent = formatName(name);
-  div.querySelector('.frequency').textContent = formatFrequency(frequency);
+  div.querySelector('.name').textContent = formatName(data.name);
+  div.querySelector('.frequency').textContent = formatFrequency(data.days);
   // Show the card fading-in and scroll to view the new habit.
   setTimeout(function() {div.classList.add('visible')}, 1);
   habitListElement.scrollTop = habitListElement.scrollHeight;
   habitInputElement.focus();
+}
+
+function insertHabit(div, data) {
+  habits[div.getAttribute('id')] = data;
+
+  function daysToMs(days) {
+    return 1000 * 60 * 60 * 24 * days;
+  }
+
+  const now = Date.now();
+  const nextDate = (data.lastDoneAt || now) + daysToMs(data.days);
+  for (let i = 0; i < habitListElement.childElementCount; i++) {
+    const otherDiv = habitListElement.children[i];
+    if (otherDiv.classList.contains('template')) {
+      continue;
+    }
+
+    const otherHabit = habits[otherDiv.getAttribute('id')];
+    if (data.lastDoneAt === undefined) {
+      if (otherHabit.lastDoneAt === undefined && otherHabit.days < data.days) {
+        continue;
+      }
+      habitListElement.insertBefore(div, otherDiv);
+      return;
+    }
+
+    if (otherHabit.lastDoneAt === undefined) {
+      continue;
+    }
+
+    const otherNextDate = otherHabit.lastDoneAt + daysToMs(otherHabit.days);
+    if (nextDate < otherNextDate || nextDate == otherNextDate && data.days < otherHabit.days) {
+      habitListElement.insertBefore(div, otherDiv);
+      return;
+    }
+  }
+  habitListElement.appendChild(div);
 }
 
 function formatName(name) {
@@ -202,8 +239,8 @@ function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function formatFrequency(frequency) {
-  return `Every ${frequency} days`;
+function formatFrequency(days) {
+  return `Every ${days} days`;
 }
 
 // Enables or disables the submit button depending on the values of the input
@@ -253,6 +290,9 @@ habitInputElement.addEventListener('keyup', toggleButton);
 habitInputElement.addEventListener('change', toggleButton);
 daysInputElement.addEventListener('keyup', toggleButton);
 daysInputElement.addEventListener('change', toggleButton);
+
+// program state
+const habits = {};
 
 // initialize Firebase
 initFirebaseAuth();
