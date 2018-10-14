@@ -169,6 +169,11 @@ var HABIT_TEMPLATE = `
   <span class="name">Push-ups</span>
   <span class="mdl-list__item-sub-title frequency">Every 3 days</span>
 </span>
+<span class="mdl-list__item-secondary-content">
+  <button class="mdl-button mdl-js-button mdl-list__item-secondary-action">
+    <i class="material-icons">done_outline</i>
+  </button>
+</span>
 </li>
 `
 
@@ -205,10 +210,6 @@ function insertHabit(div, data) {
   const nextDate = (data.lastDoneAt || now) + daysToMs(data.days);
   for (let i = 0; i < habitListElement.childElementCount; i++) {
     const otherDiv = habitListElement.children[i];
-    if (otherDiv.classList.contains('template')) {
-      continue;
-    }
-
     const otherHabit = habits[otherDiv.getAttribute('id')];
     if (data.lastDoneAt === undefined) {
       if (otherHabit.lastDoneAt === undefined && otherHabit.days < data.days) {
