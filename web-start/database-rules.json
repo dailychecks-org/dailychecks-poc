@@ -19,6 +19,13 @@
             "$other": { ".validate": false }
           }
         },
+        "habitLastLogs": {
+          "$habitId": {
+            ".validate": "root.child('users').child(auth.uid).child('habits').hasChild($habitId)",
+            "date": { ".validate": "newData.val() < now + 1000*100" },
+            "$other": { ".validate": false }
+          }
+        },
         "$other": { ".validate": false }
       }
     }
