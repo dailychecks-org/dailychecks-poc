@@ -60,7 +60,7 @@ function isUserSignedIn() {
 
 // Loads habits and listens for upcoming ones.
 function loadHabits() {
-  var callback = function(snap) {
+  var callback = function (snap) {
     var data = snap.val();
     displayHabit(snap.key, data);
   };
@@ -85,7 +85,7 @@ function createHabit(name, days) {
     type: type,
     days: days,
     createdAt: Date.now()
-  }).catch(function(error) {
+  }).catch(function (error) {
     console.error('Error writing new Habit to Firebase Database', error);
   });
 }
@@ -95,7 +95,7 @@ function onNewHabitFormSubmit(e) {
   e.preventDefault();
   // Check that the user entered a habit and is signed in.
   if (habitInputElement.value && daysInputElement.value && checkSignedInWithMessage()) {
-    createHabit(habitInputElement.value, daysInputElement.value).then(function() {
+    createHabit(habitInputElement.value, daysInputElement.value).then(function () {
       // Clear habit input fields and re-disable the SEND button.
       resetMaterialTextfield(habitInputElement);
       resetMaterialTextfield(daysInputElement);
@@ -170,7 +170,7 @@ var HABIT_TEMPLATE = `
   <span class="mdl-list__item-sub-title frequency">Every 3 days</span>
 </span>
 <span class="mdl-list__item-secondary-content">
-  <button class="mdl-button mdl-js-button mdl-list__item-secondary-action">
+  <button class="mdl-button mdl-js-button mdl-list__item-secondary-action done">
     <i class="material-icons">done_outline</i>
   </button>
 </span>
@@ -190,13 +190,24 @@ function displayHabit(key, data) {
     div = container.firstElementChild;
     div.setAttribute('id', key);
     insertHabit(div, data);
+    div.getElementsByClassName('done')[0].addEventListener('click', () => markHabitDone(key));
   }
   div.querySelector('.name').textContent = formatName(data.name);
   div.querySelector('.frequency').textContent = formatFrequency(data.days);
   // Show the card fading-in and scroll to view the new habit.
-  setTimeout(function() {div.classList.add('visible')}, 1);
+  setTimeout(function () { div.classList.add('visible') }, 1);
   habitListElement.scrollTop = habitListElement.scrollHeight;
   habitInputElement.focus();
+}
+
+function markHabitDone(key) {
+  const uid = getUid();
+  firebase.database()
+    .ref(`/users/${uid}/habits/${key}/lastDoneAt`)
+    .set(Date.now())
+    .catch(function (error) {
+      console.error('Failed to set lastDoneAt', error);
+    });
 }
 
 function insertHabit(div, data) {
@@ -258,8 +269,8 @@ function toggleButton() {
 function checkSetup() {
   if (!window.firebase || !(firebase.app instanceof Function) || !firebase.app().options) {
     window.alert('You have not configured and imported the Firebase SDK. ' +
-        'Make sure you go through the codelab setup instructions and make ' +
-        'sure you are running the codelab using `firebase serve`');
+      'Make sure you go through the codelab setup instructions and make ' +
+      'sure you are running the codelab using `firebase serve`');
   }
 }
 
