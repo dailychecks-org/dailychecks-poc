@@ -83,7 +83,8 @@ function createHabit(name, days) {
   return firebase.database().ref(`/users/${uid}/habits/`).push({
     name: name,
     type: type,
-    frequency: days
+    frequency: days,
+    createdAt: Date.now()
   }).catch(function(error) {
     console.error('Error writing new Habit to Firebase Database', error);
   });

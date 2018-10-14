@@ -9,6 +9,7 @@
             "name": { ".validate": "newData.isString() && newData.val().length < 100" },
             "type": { ".validate": "newData.isString() && newData.val() === 'positive' || newData.val() == 'negative'" },
             "frequency": { ".validate": "newData.isNumber() && 1 <= newData.val() && newData.val() <= 1000" },
+            "createdAt": { ".validate": "newData.val() < now + 1000*100" },
             "$other": { ".validate": false }
           }
         },
