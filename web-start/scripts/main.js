@@ -109,6 +109,15 @@ function markHabitDone(key) {
     });
 
   createHabitLog(key);
+
+  for (let i = 0; i < habitListElement.childElementCount; i++) {
+    if (habitListElement.children[i].getAttribute('id') === key) {
+      habitListElement.children[i].remove();
+      habits[key].lastDoneAt = Date.now();
+      displayHabit(key, habits[key]);
+      break;
+    }
+  }
 }
 
 // Triggered when the new habit form is submitted.
