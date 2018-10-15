@@ -90,6 +90,27 @@ function createHabit(name, days) {
   });
 }
 
+function createHabitLog(habitId) {
+  const uid = getUid();
+  return firebase.database().ref(`/users/${uid}/habitLogs/${habitId}`).push({
+    date: Date.now()
+  }).catch(function (error) {
+    console.error('Error writing new HabitLog to Firebase Database', error);
+  });
+}
+
+function markHabitDone(key) {
+  const uid = getUid();
+  firebase.database()
+    .ref(`/users/${uid}/habits/${key}/lastDoneAt`)
+    .set(Date.now())
+    .catch(function (error) {
+      console.error('Failed to set lastDoneAt', error);
+    });
+
+  createHabitLog(key);
+}
+
 // Triggered when the new habit form is submitted.
 function onNewHabitFormSubmit(e) {
   e.preventDefault();
@@ -198,16 +219,6 @@ function displayHabit(key, data) {
   setTimeout(function () { div.classList.add('visible') }, 1);
   habitListElement.scrollTop = habitListElement.scrollHeight;
   habitInputElement.focus();
-}
-
-function markHabitDone(key) {
-  const uid = getUid();
-  firebase.database()
-    .ref(`/users/${uid}/habits/${key}/lastDoneAt`)
-    .set(Date.now())
-    .catch(function (error) {
-      console.error('Failed to set lastDoneAt', error);
-    });
 }
 
 function insertHabit(div, data) {
