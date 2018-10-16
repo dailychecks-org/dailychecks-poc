@@ -197,7 +197,10 @@ var HABIT_TEMPLATE = `
 <li class="mdl-list__item mdl-list__item--two-line">
 <span class="mdl-list__item-primary-content">
   <span class="name">Push-ups</span>
-  <span class="mdl-list__item-sub-title frequency">Every 3 days</span>
+  <span class="mdl-list__item-sub-title">
+    <div class="next-deadline-message">2 days overdue</div>
+    <div class="frequency">Every 3 days</div>
+  </span>
 </span>
 <span class="mdl-list__item-secondary-content">
   <button class="mdl-button mdl-js-button mdl-list__item-secondary-action done">
@@ -224,18 +227,19 @@ function displayHabit(key, data) {
   }
   div.querySelector('.name').textContent = formatName(data.name);
   div.querySelector('.frequency').textContent = formatFrequency(data.days);
+  formatNextDeadlineMessage(div.querySelector('.next-deadline-message'), data);
   // Show the card fading-in and scroll to view the new habit.
   setTimeout(function () { div.classList.add('visible') }, 1);
   habitListElement.scrollTop = habitListElement.scrollHeight;
   habitInputElement.focus();
 }
 
+function daysToMs(days) {
+  return 1000 * 60 * 60 * 24 * days;
+}
+
 function insertHabit(div, data) {
   habits[div.getAttribute('id')] = data;
-
-  function daysToMs(days) {
-    return 1000 * 60 * 60 * 24 * days;
-  }
 
   const now = Date.now();
   const nextDate = (data.lastDoneAt || now) + daysToMs(data.days);
@@ -273,6 +277,36 @@ function capitalizeFirstLetter(string) {
 
 function formatFrequency(days) {
   return `Every ${days} days`;
+}
+
+function formatNextDeadlineMessage(div, data) {
+  function pluralDays(days) {
+    // days is a positive integer
+    if (days > 1) {
+      return days + ' days';
+    }
+    return '1 day';
+  }
+
+  const days = computeDays(data);
+  var nextDeadlineMessage;
+  if (days > 0) {
+    div.classList.add('severity-low');
+    nextDeadlineMessage = 'To do within ' + pluralDays(days);
+  } else if (days < 0) {
+    div.classList.add('severity-high');
+    nextDeadlineMessage = pluralDays(Math.abs(days)) + ' overdue';
+  } else {
+    div.classList.add('severity-high');
+    nextDeadlineMessage = 'Do it today!';
+  }
+  div.textContent = nextDeadlineMessage;
+}
+
+function computeDays(data) {
+  const nextDate = (data.lastDoneAt || Date.now()) + daysToMs(data.days);
+  const days = (nextDate - Date.now()) / (1000 * 60 * 60 * 24);
+  return Math.floor(days);
 }
 
 // Enables or disables the submit button depending on the values of the input

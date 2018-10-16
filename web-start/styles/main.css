@@ -142,3 +142,19 @@ main, #messages-card {
   top: -1px;
   margin-right: 5px;
 }
+
+#habits .frequency:before {
+  content: '(';
+}
+#habits .frequency:after {
+  content: ')';
+}
+.mdl-list__item-sub-title div {
+  display: inline;
+}
+#habits .severity-high {
+  color: red;
+}
+#habits .severity-low {
+  color: green;
+}
