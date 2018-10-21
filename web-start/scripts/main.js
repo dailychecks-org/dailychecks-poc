@@ -296,10 +296,15 @@ function formatNextDeadlineMessage(div, data) {
   } else if (days < 0) {
     div.classList.add('severity-high');
     nextDeadlineMessage = pluralDays(Math.abs(days)) + ' overdue';
+    const missedPeriods = Math.trunc(Math.abs(days) / data.days);
+    if (missedPeriods > 0) {
+      nextDeadlineMessage += ' (' + missedPeriods + ' missed periods)';
+    }
   } else {
     div.classList.add('severity-high');
     nextDeadlineMessage = 'Do it today!';
   }
+
   div.textContent = nextDeadlineMessage;
 }
 
