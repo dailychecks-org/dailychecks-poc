@@ -32,6 +32,11 @@
   </head>
   <body>
     <div id="message">
+      <h2>POC</h2>
+      <div id="poc"></div>
+    </div>
+
+    <div id="message">
       <h2>Welcome</h2>
       <h1>Firebase Hosting Setup Complete</h1>
       <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
@@ -59,6 +64,54 @@
           console.error(e);
           document.getElementById('load').innerHTML = 'Error loading the Firebase SDK, check the console.';
         }
+
+        var poc = document.getElementById('poc');
+
+        function initFirebaseAuth() {
+          firebase.auth().onAuthStateChanged(authStateObserver);
+        }
+
+        function authStateObserver(user) {
+          if (user) {
+            console.log('user signed in:', user);
+          } else {
+            console.log('no user');
+          }
+        }
+
+        function getUid() {
+          return firebase.auth().currentUser?.uid;
+        }
+
+        // Load items and listen for upcoming ones.
+        function loadItems() {
+          var callback = function (snap) {
+            var data = snap.val();
+            console.log(snap.key, data);
+
+            var div = document.createElement('div');
+            div.innerHTML = data.text;
+            poc.appendChild(div);
+          };
+
+          const uid = getUid();
+          // https://firebase.google.com/docs/database/web/lists-of-data#filtering_data
+          const query = firebase.database()
+            .ref(`/messages/`);
+          query.on('child_added', callback);
+          query.on('child_changed', callback);
+        }
+
+        function signInWithGoogle() {
+          var provider = new firebase.auth.GoogleAuthProvider();
+          firebase.auth().signInWithPopup(provider);
+        }
+
+        //initFirebaseAuth();
+        //signInWithGoogle();
+        loadItems();
+
+
       });
     </script>
   </body>
