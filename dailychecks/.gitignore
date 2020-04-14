@@ -63,3 +63,9 @@ node_modules/
 
 # dotenv environment variables file
 .env
+
+# svelte
+/node_modules/
+/public/build/
+
+.DS_Store
