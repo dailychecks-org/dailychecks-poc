@@ -23,3 +23,23 @@ and hard browser refresh:
 
     npm run build
 
+Note: different between Cloud Firestore and Firebase Realtime Database:
+https://stackoverflow.com/questions/46549766/whats-the-difference-between-cloud-firestore-and-the-firebase-realtime-database
+
+Create `src/firebase.js`:
+
+    import firebase from 'firebase/app';
+    import 'firebase/auth';
+    import 'firebase/firestore';
+    const firebaseConfig = {
+        // ...
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    export const auth = firebase.auth();
+    export const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+    export const db = firebase.firestore();
+
+Copy `firebaseConfig` from project settings on Firebase console, **General / Your apps / Web apps / Config**.
